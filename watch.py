@@ -16,6 +16,7 @@ import time
 import urllib.error
 import urllib.request
 from datetime import date, datetime, timedelta
+from zoneinfo import ZoneInfo
 
 SITE_ID = "10101"  # cinemacity.cz
 BASE = f"https://www.cinemacity.cz/cz/data-api-service/v1/quickbook/{SITE_ID}"
@@ -34,6 +35,17 @@ HINT_ATTR = os.environ.get("HINT_ATTR", "70-mm")
 DELAY = float(os.environ.get("REQUEST_DELAY", "0.25"))
 
 CZ_DAYS = ["po", "út", "st", "čt", "pá", "so", "ne"]
+
+# API vrací eventDateTime bez zóny, v místním čase kina. Runner v GitHub
+# Actions jede v UTC, takže by se čas představení porovnával s časem o dvě
+# hodiny pozadu — projekce, která právě doběhla, by vypadala jako budoucí
+# a při zmizení z rozpisu by se falešně nahlásila jako zrušená.
+CINEMA_TZ = ZoneInfo("Europe/Prague")
+
+
+def now():
+    """Aktuální čas v zóně kina, bez tzinfo — porovnatelný s daty z API."""
+    return datetime.now(CINEMA_TZ).replace(tzinfo=None)
 
 
 def api(path):
@@ -150,7 +162,7 @@ def save_state(path, events):
         return False
     os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
     payload = {
-        "updated": datetime.now().replace(microsecond=0).isoformat(),
+        "updated": now().replace(microsecond=0).isoformat(),
         "events": dict(sorted(events.items(), key=lambda kv: kv[1]["datetime"])),
     }
     with open(path, "w", encoding="utf-8") as fh:
@@ -161,7 +173,7 @@ def save_state(path, events):
 
 def prune_past(events):
     """Zahodí ze stavu představení, která už proběhla — ať soubor neroste."""
-    cutoff = (datetime.now() - timedelta(days=1)).isoformat()
+    cutoff = (now() - timedelta(days=1)).isoformat()
     return {k: v for k, v in events.items() if v["datetime"] >= cutoff}
 
 
@@ -211,7 +223,7 @@ def render(new_events, gone_events):
         lines.append(f"[Stránka filmu na Cinema City]({film_link})")
     lines.append("")
     lines.append(
-        f"<sub>Zkontrolováno {datetime.now():%d. %m. %Y %H:%M} · "
+        f"<sub>Zkontrolováno {now():%d. %m. %Y %H:%M} · "
         f"film ~ `{FILM_PATTERN}` · sál ~ `{AUDITORIUM_PATTERN}`</sub>"
     )
     return "\n".join(lines)
@@ -273,7 +285,7 @@ def main():
             (v for k, v in current.items() if k not in known),
             key=lambda e: e["datetime"],
         )
-        future = datetime.now().isoformat()
+        future = now().isoformat()
         gone = sorted(
             (v for k, v in known.items() if k not in current and v["datetime"] > future),
             key=lambda e: e["datetime"],
