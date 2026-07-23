@@ -54,9 +54,13 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          # Přiřazení vlastníkovi je klíčové: GitHub posílá e-mail defaultně jen
+          # u "Participating" notifikací (přiřazení, zmínky). Pouhé "Watching"
+          # repa dává jen web/mobile notifikaci, e-mail je tam vypnutý.
           gh issue create \
             --title "$(cat title.txt)" \
-            --body-file report.md
+            --body-file report.md \
+            --assignee "${{ github.repository_owner }}"
 
       - name: Uložit stav zpátky do repa
         run: |

@@ -1,8 +1,13 @@
 # cinemacity-watchdog
 
 Hlídá rozpis [Cinema City](https://www.cinemacity.cz) a když přibude nový termín
-**Odyssei v IMAXu**, založí v tomhle repu issue. GitHub z něj pošle e-mail
-i push do mobilní appky — žádné další nastavení netřeba.
+**Odyssei v IMAXu**, založí v tomhle repu issue a **přiřadí ho vlastníkovi repa**.
+GitHub z něj pošle e-mail i push do mobilní appky.
+
+Na přiřazení záleží: e-mail chodí ve výchozím nastavení jen u „Participating"
+notifikací (přiřazení, zmínky, odpovědi). Pouhé sledování repa („Watching")
+dává jen web/mobile notifikaci — e-mail je pro něj v Settings → Notifications
+vypnutý, dokud si ho člověk nezapne.
 
 Běží v GitHub Actions, takže funguje i když je Mac vypnutý.
 
