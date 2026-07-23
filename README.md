@@ -57,6 +57,26 @@ Chování jde změnit proměnnými prostředí ve workflow:
 Hlídat cokoli jiného (třeba `FILM_PATTERN=dune`, `AUDITORIUM_PATTERN=4dx`) tedy
 znamená přepsat dvě proměnné a smazat `state/seen.json`.
 
+## Chci to hlídat taky (fork)
+
+Watchdog nepotřebuje žádné tokeny ani secrets — API Cinema City je veřejné
+a na zakládání issues stačí vestavěný `GITHUB_TOKEN`. Rozjedeš ho takhle:
+
+1. **Forkni** si tohle repo.
+2. **Settings → General → Features → zaškrtni `Issues`.** Forky mají issues
+   vypnuté a bez nich by watchdog neměl kudy hlásit.
+3. **Actions → „I understand my workflows, go ahead and enable them".**
+   GitHub v forcích naplánované workflows nespouští, dokud je nepovolíš.
+4. Hotovo. Issues se zakládají a přiřazují tobě, protože workflow používá
+   `${{ github.repository_owner }}` — nic přepisovat nemusíš.
+
+Stav v `state/seen.json` se forkne s sebou, takže tě to nezasype aktuálním
+rozpisem a ozve se až s prvním novým termínem. Chceš-li hned vidět, co se
+hraje teď, spusť workflow ručně s `force_report`.
+
+Hlídat jiný film než Odysseu: přepiš `FILM_PATTERN` (a případně
+`AUDITORIUM_PATTERN`) ve workflow a smaž obsah `state/seen.json`.
+
 ## Ruční spuštění
 
 **Actions → Cinema City watchdog → Run workflow**. Zaškrtnutí *force_report*
