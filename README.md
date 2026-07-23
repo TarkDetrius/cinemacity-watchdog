@@ -14,8 +14,8 @@ Běží v GitHub Actions, takže funguje i když je Mac vypnutý.
 ## Jak to funguje
 
 - Workflow [`.github/workflows/watch.yml`](.github/workflows/watch.yml) běží
-  **každé 2 hodiny** (v :23 — mimo špičky, kdy GitHub cron nejvíc zahazuje běhy).
-  12 běhů denně se vejde do free kvóty Actions i u privátního repa.
+  **každou půlhodinu** (v :13 a :43 — mimo špičky, kdy GitHub cron nejvíc
+  zahazuje běhy). Repo je veřejné, takže minuty Actions jsou zdarma bez limitu.
 - [`watch.py`](watch.py) stáhne rozpis z veřejného JSON API cinemacity.cz
   (`/cz/data-api-service/v1/quickbook/10101/…`) — bez klíče, bez přihlášení.
 - Seznam už viděných představení drží v [`state/seen.json`](state/seen.json),
@@ -73,9 +73,10 @@ filtru), `--force-report` (vypíše vše bez ohledu na stav).
 
 ## Údržba
 
-- **Kvóta Actions:** repo je privátní, takže se běhy počítají do free limitu
-  2 000 minut měsíčně. Při dvouhodinové kadenci se spotřebuje zhruba třetina.
-  Zrychlovat cron proto dává smysl až spolu se změnou repa na veřejné.
+- **Kvóta Actions:** repo je záměrně veřejné — u veřejných rep jsou minuty
+  Actions zdarma bez limitu. Kdyby se překlopilo na privátní, běhy by se začaly
+  počítat do free limitu 2 000 minut měsíčně a půlhodinová kadence by ho
+  přečerpala; pak je potřeba zároveň zpomalit cron (např. `23 */2 * * *`).
 - **60denní pauza:** GitHub automaticky vypne cron, pokud v repu 60 dní nic
   nepřibude. Tady to nehrozí — workflow si sám commituje stav.
 - **Až Odyssea dohraje,** watchdog jen přestane cokoli hlásit. Buď ho vypni
