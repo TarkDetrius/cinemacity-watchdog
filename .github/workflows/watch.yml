@@ -1,0 +1,78 @@
+name: Cinema City watchdog
+
+# Každé 2 hodiny zkontroluje rozpis Cinema City a když přibudou termíny
+# Odyssei v IMAXu, založí issue (GitHub z něj pošle e-mail i push do appky).
+# 12 běhů denně = ~360 měsíčně, což se vejde do free kvóty Actions i u
+# privátního repa. Minuta schválně mimo :00 a :30 — v těchto špičkách
+# GitHub cron nejvíc zahazuje běhy.
+on:
+  schedule:
+    - cron: "23 */2 * * *"
+  workflow_dispatch:
+    inputs:
+      force_report:
+        description: "Nahlásit všechny aktuální termíny, i už známé"
+        type: boolean
+        default: false
+
+# Stav se commituje zpátky do repa — souběžné běhy by si přepsaly commit.
+concurrency:
+  group: watchdog
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Zkontrolovat rozpis
+        id: watch
+        # Chceš hlídat jiný film nebo jiný typ sálu? Přepiš tyhle dvě hodnoty
+        # a smaž state/seen.json (jinak se nový výběr porovná se starým stavem).
+        env:
+          FILM_PATTERN: odyss
+          AUDITORIUM_PATTERN: imax
+        run: |
+          python3 watch.py \
+            --state state/seen.json \
+            --report report.md \
+            --title title.txt \
+            ${{ inputs.force_report && '--force-report' || '' }}
+
+      - name: Založit issue s novými termíny
+        if: steps.watch.outputs.has_news == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh issue create \
+            --title "$(cat title.txt)" \
+            --body-file report.md
+
+      - name: Uložit stav zpátky do repa
+        run: |
+          rm -f report.md title.txt
+          if git diff --quiet -- state/seen.json; then
+            echo "Stav beze změny, není co commitovat."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add state/seen.json
+          git commit -m "Aktualizace stavu rozpisu ($(date -u '+%Y-%m-%d %H:%M UTC'))"
+          # Mezitím mohl doběhnout jiný commit — zkusíme rebase a push znovu.
+          for i in 1 2 3; do
+            git pull --rebase --quiet origin "${GITHUB_REF_NAME}" && git push && exit 0
+            sleep 5
+          done
+          echo "::error::Push stavu se nepovedl."
+          exit 1
