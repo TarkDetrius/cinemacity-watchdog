@@ -1,6 +1,6 @@
 name: Cinema City watchdog
 
-# Zkontroluje rozpis Cinema City a když přibudou termíny Odyssei v IMAXu,
+# Zkontroluje rozpis Cinema City a když přibudou termíny Duny v IMAXu,
 # založí issue (GitHub z něj pošle e-mail i push do appky).
 #
 # Naplánováno 4× za hodinu, i když cílem je detekce do ~30 minut: GitHub
@@ -45,7 +45,7 @@ jobs:
         # Chceš hlídat jiný film nebo jiný typ sálu? Přepiš tyhle dvě hodnoty
         # a smaž state/seen.json (jinak se nový výběr porovná se starým stavem).
         env:
-          FILM_PATTERN: odyss
+          FILM_PATTERN: duna
           AUDITORIUM_PATTERN: imax
         run: |
           python3 watch.py \

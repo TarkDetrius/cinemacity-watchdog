@@ -1,7 +1,7 @@
 # cinemacity-watchdog
 
 Hlídá rozpis [Cinema City](https://www.cinemacity.cz) a když přibude nový termín
-**Odyssei v IMAXu**, založí v tomhle repu issue a **přiřadí ho vlastníkovi repa**.
+**Duny v IMAXu**, založí v tomhle repu issue a **přiřadí ho vlastníkovi repa**.
 GitHub z něj pošle e-mail i push do mobilní appky.
 
 Na přiřazení záleží: e-mail chodí ve výchozím nastavení jen u „Participating"
@@ -35,9 +35,9 @@ Jeden běh je ~45 HTTP dotazů a trvá ~20 sekund.
 
 ## Co přesně se hlídá
 
-Představení, kde **název filmu** obsahuje `odyss` **a** **název sálu** obsahuje
+Představení, kde **název filmu** obsahuje `duna` **a** **název sálu** obsahuje
 `imax`. Aktuálně tomu odpovídá jediné kino v ČR — **Praha Flora**, sál
-`IMAX VOLVO`, kde Odyssea běží v 70mm s titulky.
+`IMAX VOLVO`, kde Duna: část třetí běží v 70mm s titulky.
 
 Aby se netahal celý rozpis všech třinácti kin, hledá se dvoufázově: nejdřív se
 zjistí, která kina vůbec mají IMAX sál (jedna sonda na nejbližší hrací den plus
@@ -48,7 +48,7 @@ Chování jde změnit proměnnými prostředí ve workflow:
 
 | Proměnná | Výchozí | Význam |
 | --- | --- | --- |
-| `FILM_PATTERN` | `odyss` | podřetězec názvu filmu (case-insensitive) |
+| `FILM_PATTERN` | `duna` | podřetězec názvu filmu (case-insensitive) |
 | `AUDITORIUM_PATTERN` | `imax` | podřetězec názvu sálu |
 | `HORIZON_DAYS` | `180` | jak daleko dopředu se ptát |
 | `HINT_ATTR` | `70-mm` | atribut pro levné dohledání kandidátských kin |
@@ -74,7 +74,7 @@ Stav v `state/seen.json` se forkne s sebou, takže tě to nezasype aktuálním
 rozpisem a ozve se až s prvním novým termínem. Chceš-li hned vidět, co se
 hraje teď, spusť workflow ručně s `force_report`.
 
-Hlídat jiný film než Odysseu: přepiš `FILM_PATTERN` (a případně
+Hlídat jiný film než Dunu: přepiš `FILM_PATTERN` (a případně
 `AUDITORIUM_PATTERN`) ve workflow a smaž obsah `state/seen.json`.
 
 ## Ruční spuštění
@@ -106,7 +106,7 @@ filtru), `--force-report` (vypíše vše bez ohledu na stav).
   přečerpala; pak je potřeba zároveň zpomalit cron (např. `23 */2 * * *`).
 - **60denní pauza:** GitHub automaticky vypne cron, pokud v repu 60 dní nic
   nepřibude. Tady to nehrozí — workflow si sám commituje stav.
-- **Až Odyssea dohraje,** watchdog jen přestane cokoli hlásit. Buď ho vypni
+- **Až Duna dohraje,** watchdog jen přestane cokoli hlásit. Buď ho vypni
   (Actions → *Disable workflow*), nebo přepiš `FILM_PATTERN` na další film.
 - Kdyby Cinema City API změnilo, workflow spadne s chybou a GitHub o tom
   pošle e-mail.

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Hlídá rozpis Cinema City a hlásí nově vypsaná představení.
 
-Ve výchozím nastavení: film "Odyssea" v sále, jehož název obsahuje "IMAX".
+Ve výchozím nastavení: film "Duna" v sále, jehož název obsahuje "IMAX".
 Data bere z veřejného JSON API cinemacity.cz (bez klíče, bez přihlášení).
 
 Stav (už viděná představení) drží v JSON souboru, takže při každém běhu
@@ -26,7 +26,7 @@ UA = (
     "(KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
 )
 
-FILM_PATTERN = os.environ.get("FILM_PATTERN", "odyss").lower()
+FILM_PATTERN = os.environ.get("FILM_PATTERN", "duna").lower()
 AUDITORIUM_PATTERN = os.environ.get("AUDITORIUM_PATTERN", "imax").lower()
 HORIZON_DAYS = int(os.environ.get("HORIZON_DAYS", "180"))
 # Atribut, podle kterého API umí filtrovat kina — levná nápověda, kde hledat
@@ -307,7 +307,11 @@ def main():
         return
 
     body = render(new_events, gone)
-    title = title_for(new_events) if new_events else "🎬 Odyssea v IMAXu: zrušené termíny"
+    if new_events:
+        title = title_for(new_events)
+    else:
+        film = gone[0]["film"]
+        title = f"🎬 {film} v IMAXu: zrušené termíny"
     with open(args.report, "w", encoding="utf-8") as fh:
         fh.write(body + "\n")
     with open(args.title, "w", encoding="utf-8") as fh:
