@@ -14,8 +14,10 @@ Běží v GitHub Actions, takže funguje i když je Mac vypnutý.
 ## Jak to funguje
 
 - Workflow [`.github/workflows/watch.yml`](.github/workflows/watch.yml) běží
-  **každou půlhodinu** (v :13 a :43 — mimo špičky, kdy GitHub cron nejvíc
-  zahazuje běhy). Repo je veřejné, takže minuty Actions jsou zdarma bez limitu.
+  **4× za hodinu** (v :08, :21, :38 a :51). Cílem je detekce do ~30 minut;
+  víc pokusů je pojistka proti tomu, že GitHub naplánované běhy pod zátěží
+  houfně zahazuje. Minuty schválně mimo :00 a :30 a rozprostřené, ať netrefí
+  stejnou špičku. Repo je veřejné, takže minuty Actions jsou zdarma bez limitu.
 - [`watch.py`](watch.py) stáhne rozpis z veřejného JSON API cinemacity.cz
   (`/cz/data-api-service/v1/quickbook/10101/…`) — bez klíče, bez přihlášení.
 - Seznam už viděných představení drží v [`state/seen.json`](state/seen.json),
